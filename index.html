@@ -73,15 +73,96 @@
 				</section>
 
 				<section>
-					<section>
-						<h2>Chef</h2>
+					<section data-background="images/chef/logo.png" data-background-position="25% 32%" data-background-size="40%" data-background-transition="zoom">
+						<h2>OpsCode Chef</h2>
 						<p>
 						</p>
 					</section>
 					<section>
-						<h2>Chef slide 2</h2>
-						<p></p>
+						<h2>Chef, c'est quoi donc ?</h2>
+						<blockquote cite="https://docs.chef.io/">
+                            “Chef is a systems and cloud <strong>infrastructure automation framework</strong> that makes it easy to deploy servers and applications to any physical, virtual, or cloud location, no matter the size of the infrastructure.”
+						</blockquote>
 					</section>
+                    <section>
+                        <h2>Un peu de vocabulaire</h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Cookbook</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Recipes</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Resources</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <section>
+                        <h2>Cookbook</h2>
+                        <p>Un cookbook contient une ou plusieurs recipes</p>
+
+                        <pre><code data-trim>.
+├── attributes/
+│   └── default.rb
+├── files/
+│   └── default/
+├── libraries/
+├── metadata.rb
+├── providers/
+├── recipes/
+│   └── default.rb
+├── resources/
+└── templates/
+    └── default/</code></pre>
+                    </section>
+                    <section>
+                        <h2>Recipe</h2>
+                        <p>Une recipe contient une ou plusieurs resources</p>
+
+                        <pre class="ruby"><code data-trim>yum_repository 'hhvm' do
+    baseurl 'http://www.hop5.in/yum/el6/'
+    gpgkey 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-HOP5'
+    action :create
+
+    notifies :run, 'execute[yum-clean-all]', :immediately
+end
+
+execute 'yum-clean-all' do
+    command 'yum clean all'
+    action :nothing
+end
+
+package 'hhvm'</code></pre>
+
+                        <blockquote cite="https://docs.chef.io/">
+                            “Chef, pour installer HHVM, il faut d'abord ajouter un dépôt YUM et ensuite installer le paquet qui s'appelle <code>hhvm</code>.”
+                        </blockquote>
+                    </section>
+                    <section>
+                        <h2>Resource</h2>
+                        <p>C'est la description de l'état final attendu</p>
+
+                        <pre class="ruby"><code data-trim>git 'atoum' do
+    repository 'https://github.com/atoum/atoum.git'
+    reference 'master'
+    destination '/opt/atoum'
+    action :sync
+end</code></pre>
+                        <blockquote cite="https://docs.chef.io/">
+                            “Chef, je veux que le dossier <code>/opt/atoum</code> soit synchronisé avec la branche <code>master</code> du dépôt <code>git</code> d'atoum.
+                            <br/>
+                            Merci !”
+                        </blockquote>
+                    </section>
 				</section>
 
 				<section>
