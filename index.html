@@ -67,7 +67,7 @@
 						</p>
 					</section>
 					<section>
-						<h2>Ansible slide 2<h2>
+						<h2>Ansible slide 2</h2>
 						<p></p>
 					</section>
 				</section>
@@ -79,7 +79,7 @@
 						</p>
 					</section>
 					<section>
-						<h2>Chef slide 2<h2>
+						<h2>Chef slide 2</h2>
 						<p></p>
 					</section>
 				</section>
@@ -135,7 +135,7 @@
     file { "/etc/httpd/conf.d/${variable1}":
         content =&gt; $variable2,
     }
-}</pre></code>
+}</code></pre>
                         <div class="fragment">
                             <h3>Déclaration d’une classe</h3>
                             <pre><code>class monmodule::maclasse (
@@ -152,6 +152,7 @@
         variable2 =&gt; '',
     }
 }</code></pre>
+                        </div>
                     </section>
                     <section>
                         <h2>Comment charger une classe</h2>
@@ -186,7 +187,7 @@
 ├── puppet.conf
 │   &lt;!-- Mes recommandations --&gt;
 ├── hieradata
-└── sensitive</pre></code>
+└── sensitive</code></pre>
                         <p>/etc/puppet/fileserver.conf
                         <pre><code>[sensitive]
 path /etc/puppet/sensitive/%d/%h
