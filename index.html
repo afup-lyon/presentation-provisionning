@@ -85,15 +85,204 @@
 				</section>
 
 				<section>
+                    <section data-background="images/puppet/logo.svg"
+                        data-background-position="50%"
+                        data-background-size="60%"
+                        data-background-transition="zoom"></section>
 					<section>
-						<h2>Puppet</h2>
-						<p>
-						</p>
+						<h2>Ça fait quoi ?</h2>
+						<p>À partir d’un jeu de règles</p>
+                        <ul>
+                            <li class="fragment">Le master génère un catalogue
+                            décrivant l’état cible</li>
+                            <li class="fragment">Le catalogue est envoyé sur la
+                            cible</li>
+                            <li class="fragment">L’agent vérifie pour chaque
+                            élément du catalogue si c’est l’état actuel, le cas
+                            échéant il change l’état</li>
+                            <li class="fragment">Un rapport est renvoyé au
+                            master</li>
+                        </ul>
+                        <aside class="notes">
+                            <p>On peut assi générer le catalogue depuis les cibles à condition de tout dupliquer.</p>
+                        </aside>
 					</section>
-					<section>
-						<h2>Puppet slide 2<h2>
-						<p></p>
-					</section>
+                    <section>
+                        <h2>Exemple simple</h2>
+                        <pre><code>node default {
+    service { 'sshd':
+        enable  =&gt; true,
+    }
+    package { 'sshd':
+        ensure  =&gt; latest,
+        name    =&gt; 'openssh-server',
+    }
+    file { '/etc/ssh/sshd_config':
+        file    =&gt; 'puppet:///files/sshd_config',
+        notify  =&gt; Service['sshd'],
+        require =&gt; Package['sshd'],
+    }
+}</code></pre>
+                        <a class="fragment"  href="https://docs.puppetlabs.com/references/latest/type.html">Liste exhaustive des types natifs supportés.</a>
+                    </section>
+                    <section>
+                        <h2>Différence entre “type” et “class”</h2>
+                        <h3>Déclaration d’un type</h3>
+                        <pre><code>define monmodule::montype (
+    $variable1 = 'valeur par défaut',
+    $variable2,
+    ) {
+    file { "/etc/httpd/conf.d/${variable1}":
+        content =&gt; $variable2,
+    }
+}</pre></code>
+                        <div class="fragment">
+                            <h3>Déclaration d’une class</h3>
+                            <pre><code>class monmodule::maclass (
+    $variable1 = 'valeur par défaut',
+    $variable2,
+    ) {
+    package { 'httpd': }
+    service { 'httpd': }
+    file { '/etc/httpd/httpd.conf':
+        content =&gt; template('monmodule/httpd.conf.erb'),
+        notify  =&gt; Service['httpd'],
+    }
+    monmodule::montype { 'default':
+        variable2 =&gt; '',
+    }
+}</code></pre>
+                    </section>
+                    <section>
+                        <h2>Comment charger une class</h2>
+                        <p>Deux manières : <span class="fragment">la bonne</span> et <span class="fragment">la mauvaise</span></p>
+                        <div class="fragment">
+                            <h3>La bonne</h3>
+                            <pre><code>include monmodule::maclass</code></pre>
+                        </div>
+                        <div class="fragment">
+                            <h3>La mauvaise</h3>
+                            <pre><code>class { monmodule::maclass: }</code></pre>
+                            <pre class="fragment"><code>class { monmodule::maclass:
+    variable1 =&gt; 'valeur',
+}</code></pre>
+                            <p class="fragment">À la place on met les variables de class dans hiera.</p>
+                        </div>
+                    </section>
+                    <section>
+                        <h2>Arborescence</h2>
+                        <pre><code>/etc/puppet
+├── auth.conf
+├── environments
+│   └── production
+│       ├── manifests
+│       │   └── site.pp
+│       └── modules
+├── fileserver.conf &lt;!-- Utilisé par les requêtes puppet://[serveur]/loc --&gt;
+├── hiera.yaml      &lt;!-- Configuration de l’entrepôt de variables --&gt;
+├── manifests
+│   └── site.pp
+├── modules
+├── puppet.conf
+│   &lt;!-- Mes recommandations --&gt;
+├── hieradata
+└── sensitive</pre></code>
+                        <p>/etc/puppet/fileserver.conf
+                        <pre><code>[sensitive]
+path /etc/puppet/sensitive/%d/%h
+allow *</code></pre>
+                    </section>
+                    <section>
+                        <h2>Hiera</h2>
+                        <p>hierdata/</p>
+                        <pre><code>├── common.yaml
+├── developement.yaml
+├── afpy.org.yaml
+├── integration.yaml
+└── server1.afpy.org.yaml</code></pre>
+                        <p>common.yaml
+                        <pre><code>---
+nginx::confd_purge: true
+postgresql::globals::encoding: 'UTF-8'
+default_vhost_name: "%{fqdn}"
+root_keys:
+    - user1
+jvm_properties:
+    Xmx: 5g
+</code></pre>
+                        <p>Les fonctions</p>
+                        <pre><code>hiera('key', 'default', 'override')
+hiera_array('key', 'default', 'override')
+hiera_hash('key', 'default', 'override')</code></pre>
+                        <aside class="notes">Override sert pour redéfinir la hierarchier de hiera.</aside>
+                    </section>
+                    <section>
+                        <h2>Facter</h2>
+                        <p>Permet de récupérer des informations à propos de nœuds.</p>
+                        <pre><code>architecture =&gt; x86_64
+bios_version =&gt; MWPNT10N.86A.0083.2011.0524.1600
+blockdevice_sda_model =&gt; TOSHIBA DT01ACA1
+blockdevice_sda_size =&gt; 1000204886016
+blockdevices =&gt; sda sdb sdc
+domain =&gt; afpy.org
+fqdn =&gt; exemple1.afpy.org
+hostname =&gt; exemple1
+interfaces =&gt; br0,eth0,lo,virbr0,virbr0_nic
+ipaddress =&gt; 10.10.12.12
+ipaddress6_br0 =&gt; 2001::1
+is_virtual =&gt; false
+kernel =&gt; Linux
+kernelmajversion =&gt; 3.10
+memoryfree =&gt; 2.85 GB
+memorysize_mb =&gt; 3775.95
+operatingsystem =&gt; CentOS
+operatingsystemmajrelease =&gt; 7
+os =&gt; {"name"=&gt;"CentOS", "family"=&gt;"RedHat", "release"=&gt;{"major"=&gt;"7", "minor"=&gt;"0", "full"=&gt;"7.0.1406"}}
+osfamily =&gt; RedHat
+partitions =&gt; {"sda1"=&gt;{"uuid"=&gt;"aa6f8f14-9e42-495d-8b1b-2a17849494d0", "size"=&gt;"40957952", "mount"=&gt;"/", "filesystem"=&gt;"ext3"}, "sda2"=&gt;{"uuid"=&gt;"5bca139c-67a4-416c-8d6d-b2eda0404b64", "size"=&gt;"1046528", "filesystem"=&gt;"swap"}}
+processorcount =&gt; 2
+selinux =&gt; true
+virtual =&gt; physical
+</code></pre>
+                    </section>
+                    <section>
+                        <h2>PuppetDB</h2>
+                        <ul>
+                            <li>Base de données</li>
+                            <li class="fragment">Facts</li>
+                            <li class="fragment">Catalogues</li>
+                        </ul>
+                        <div class="fragment">
+                            <p>Ressources exportés</p>
+                            <pre><code>@@dns::record::aaaa { 'wsgi':
+    data =&gt; $::ipaddress6,
+    zone =&gt; $::domain,
+}</code></pre>
+                            <pre><code>Dns::Record:Aaaa &lt;&lt;| zone == $::domain |&gt;&gt; </code></pre>
+                        </div>
+                    </section>
+                    <section>
+                        <h2>Anatomie d’un module</h2>
+                        <pre><code>modules/monmodule/
+├── files
+│   └── sshd_config
+├── lib
+│   ├── facter
+│   └── puppet
+│       ├── parser
+│       ├── provider
+│       └── type
+├── manifests
+│   ├── init.pp      &lt;!-- monmodule                 --&gt;
+│   ├── maclass.pp   &lt;!-- monmodule::maclass        --&gt;
+│   ├── montype.pp   &lt;!-- monmodule::montype        --&gt;
+│   └── montype
+│       └── autre.pp &lt;!-- monmodule::montype::autre --&gt;
+├── Modulefile
+├── spec / tests
+└── templates
+    └── httpd.conf.erb</code></pre>
+                    </section>
 				</section>
 			</div>
 
