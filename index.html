@@ -104,7 +104,7 @@
                             master</li>
                         </ul>
                         <aside class="notes">
-                            <p>On peut assi générer le catalogue depuis les cibles à condition de tout dupliquer.</p>
+                            <p>On peut aussi générer le catalogue depuis les cibles à condition de tout dupliquer.</p>
                         </aside>
 					</section>
                     <section>
@@ -214,7 +214,7 @@ jvm_properties:
                         <pre><code>hiera('key', 'default', 'override')
 hiera_array('key', 'default', 'override')
 hiera_hash('key', 'default', 'override')</code></pre>
-                        <aside class="notes">Override sert pour redéfinir la hierarchier de hiera.</aside>
+                        <aside class="notes">Override sert pour redéfinir la hiérarchie de hiera.</aside>
                     </section>
                     <section>
                         <h2>Facter</h2>
@@ -253,7 +253,7 @@ virtual =&gt; physical
                             <li class="fragment">Catalogues</li>
                         </ul>
                         <div class="fragment">
-                            <p>Ressources exportés</p>
+                            <p>Ressources exportées</p>
                             <pre><code>@@dns::record::aaaa { 'wsgi':
     data =&gt; $::ipaddress6,
     zone =&gt; $::domain,
