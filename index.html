@@ -84,53 +84,77 @@
                             “Chef is a systems and cloud <strong>infrastructure automation framework</strong> that makes it easy to deploy servers and applications to any physical, virtual, or cloud location, no matter the size of the infrastructure.”
 						</blockquote>
 					</section>
+
                     <section>
                         <h2>Un peu de vocabulaire</h2>
                         <table>
                             <tbody>
                                 <tr>
-                                    <td>Cookbook</td>
+                                    <td>Cookbooks</td>
                                     <td></td>
                                 </tr>
                                 <tr></tr>
                                 <tr>
-                                    <td>Recipes</td>
+                                    <td>Recettes (recipes)</td>
                                     <td></td>
                                 </tr>
                                 <tr></tr>
                                 <tr>
-                                    <td>Resources</td>
+                                    <td>Ressources</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Attributs (attributes)</td>
                                     <td></td>
                                 </tr>
                                 <tr></tr>
                             </tbody>
                         </table>
                     </section>
-                    <section>
-                        <h2>Cookbook</h2>
-                        <p>Un cookbook contient une ou plusieurs recipes</p>
 
-                        <pre><code data-trim>.
-├── attributes/
-│   └── default.rb
-├── files/
-│   └── default/
-├── libraries/
-├── metadata.rb
-├── providers/
-├── recipes/
-│   └── default.rb
-├── resources/
-└── templates/
-    └── default/</code></pre>
+                    <section>
+                        <h2>Attributs</h2>
+                        <p>Une variable configurable</p>
+
+                        <h3>Définie par</h3>
+                        <pre class="ruby"><code data-trim># my_app/attributes/default.rb
+
+default['my_app']['environment'] = 'prod'</code></pre>
+
+                        <h3>Accédée par</h3>
+
+                        <pre class="ruby"><code data-trim># my_app/recipes/default.rb
+
+puts node['my_app']['environment']</code></pre>
                     </section>
-                    <section>
-                        <h2>Recipe</h2>
-                        <p>Une recipe contient une ou plusieurs resources</p>
 
-                        <pre class="ruby"><code data-trim>yum_repository 'hhvm' do
-    baseurl 'http://www.hop5.in/yum/el6/'
-    gpgkey 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-HOP5'
+                    <section>
+                        <h2>Ressource</h2>
+                        <p>C'est la description de l'état final attendu</p>
+
+                        <pre class="ruby"><code data-trim># my_app/recipes/packages.rb
+
+package 'hhvm' do
+    action :install
+end</code></pre>
+
+                        <blockquote cite="https://docs.chef.io/">
+                            “Chef, installe le paquet <code>hhvm</code> s'il n'est pas déjà installé.
+                            <br/>
+                            Merci !”
+                        </blockquote>
+                    </section>
+
+                    <section>
+                        <h2>Recette (recipe)</h2>
+                        <p>Une recette contient une ou plusieurs resources</p>
+
+                        <pre class="ruby"><code data-trim># recipes/packages.rb
+
+yum_repository 'epel' do
+    mirrorlist 'http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&arch=$basearch'
+    gpgkey 'http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6'
     action :create
 
     notifies :run, 'execute[yum-clean-all]', :immediately
@@ -141,28 +165,159 @@ execute 'yum-clean-all' do
     action :nothing
 end
 
-package 'hhvm'</code></pre>
+package 'php'</code></pre>
 
                         <blockquote cite="https://docs.chef.io/">
-                            “Chef, pour installer HHVM, il faut d'abord ajouter un dépôt YUM et ensuite installer le paquet qui s'appelle <code>hhvm</code>.”
+                            “Chef, pour installer le paquet <code>php</code>, il faut commencer par ajouter le dépôt EPEL. Ensuite tu pourras installer <code>php</code>”
                         </blockquote>
                     </section>
+
                     <section>
-                        <h2>Resource</h2>
-                        <p>C'est la description de l'état final attendu</p>
+                        <h2>Cookbook</h2>
+                        <p>Un cookbook contient une ou plusieurs recettes</p>
 
-                        <pre class="ruby"><code data-trim>git 'atoum' do
-    repository 'https://github.com/atoum/atoum.git'
-    reference 'master'
-    destination '/opt/atoum'
-    action :sync
-end</code></pre>
-                        <blockquote cite="https://docs.chef.io/">
-                            “Chef, je veux que le dossier <code>/opt/atoum</code> soit synchronisé avec la branche <code>master</code> du dépôt <code>git</code> d'atoum.
-                            <br/>
-                            Merci !”
-                        </blockquote>
+                        <pre><code data-trim>.
+├── attributes/
+│   └── default.rb
+├── files/
+│   └── default/
+├── libraries/
+├── metadata.rb
+├── providers/
+├── recipes/
+│   ├── default.rb
+│   └── packages.rb
+├── resources/
+└── templates/
+    └── default/</code></pre>
                     </section>
+
+                    <section>
+                        <h2>Configuration</h2>
+                        <p>Un peu de JSON</p>
+
+                        <pre class="json"><code data-trim>{
+    "run_list": [
+        "recipe[etc_environment]",
+        "recipe[my_app::packages]",
+        "recipe[my_app]"
+    ],
+    "etc_environment": {
+        "SYMFONY_ENV": "prod",
+        "SYMFONY_DEBUG": 0
+    }
+}</code></pre>
+
+                        <p>La liste des recettes à exécuter ainsi que les attributs</p>
+                    </section>
+
+                    <section>
+                        <h2>chef-solo</h2>
+                        <p>Encore un peu de ruby</p>
+
+                        <pre><code data-trim># /opt/chef/solo.rb
+
+cookbook_path ['/opt/chef/cookbooks']
+json_attribs '/opt/chef/solo.json'</code></pre>
+
+                        <p>Et une ligne de commande</p>
+
+                        <pre><code data-trim>chef-solo -c /opt/chef/solo.rb</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>chef-server / chef-client</h2>
+                        <p>Pour le mode client/serveur</p>
+                    </section>
+
+                    <section>
+                        <h2>Un peu de vocabulaire, encore</h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Noeuds (nodes)</td>
+                                    <td>La machine cible décrite pas des rôles, des cookbooks/recettes et des attributs</td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Rôles</td>
+                                    <td>Une collection de cookbooks/recettes et des attributs</td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Environnements</td>
+                                    <td>Un ensemble de contraintes sur les cookbooks et des attributs</td>
+                                </tr>
+                                <tr></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h2>Les outils</h2>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>knife</td>
+                                <td>Commande pour gérer chef server</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>berks</td>
+                                <td>Gestionnaire de dépendances</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>foodcritic</td>
+                                <td>Linter</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>chefspec</td>
+                                <td>Tests unitaires</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>kitchen CI</td>
+                                <td>Tests d'intégration multi-plateforme</td>
+                            </tr>
+                            <tr></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h2>Les points forts</h2>
+
+                        <ul>
+                            <li>Du ruby partout</li>
+                            <li>Une documentation assez énorme</li>
+                            <li>Beaucoup de ressources (cookbooks, articles, ...)</li>
+                            <li>Extensible facilement</li>
+                            <li>Un très bon écosystème</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Les points faibles</h2>
+
+                        <ul>
+                            <li>Les débuts peuvent être compliqués</li>
+                            <li>La documentation est parfois dure à exploiter</li>
+                            <li>Chef server un peu compliqué à installer</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Quelques liens</h2>
+
+                        <ul>
+                            <li>Du ruby partout</li>
+                            <li>Une documentation assez énorme</li>
+                            <li>Extensible facilement</li>
+                        </ul>
+                    </section>
+
 				</section>
 
 				<section>
