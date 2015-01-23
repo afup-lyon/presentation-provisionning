@@ -1002,6 +1002,229 @@ virtual =&gt; physical
                     </section>
 				</section>
 
+		<section>
+			<section data-background="images/salt/salt.png" data-background-size="30%" data-background-transition="zoom">
+			<h2 style="color:black">Saltstack</h2>
+			<p>
+			</p>
+	        	</section>
+
+
+			<section>
+		        <img src="images/salt/logo.png" style="border:none;width:50%" />
+			<p>
+                          Gaston TJEBBES
+			  <tech@majerti.fr>
+			</p>
+			</section>
+
+			<section data-markdown>
+    <script type="text/template">
+	
+Le contexte
+===========
+
+-   L’hébergement de solutions développées en interne
+-   Le réseau interne d’une entreprise
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Le besoin
+=========
+
+-   Gain de temps
+-   Gestion des problématiques de sécurité
+-   Automatisation du workflow
+-   Uniformiser les configurations
+-   Anticiper la croissance
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Autrement dit
+=============
+
+-   Lancer des commandes de manière unifiée
+-   Centraliser des configurations éparses
+-   Gérer des dépendances (logiciels, fonctionnels)
+-   Cibler des machines
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Pourquoi Saltstack
+==================
+
+-   Libre
+-   Python
+-   Une architecture simple
+-   Un système de ciblage avancé (grains + pillar)
+-   Des fonctionnalités qui matchent nos besoins et nos ambitions
+    (salt-virt, reactor, salt-mine …)
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Le projet
+=========
+
+-   Projet initié en 2011 par Thomas S Hatch
+-   Licence Apache 2.0
+-   Une ML très active
+-   Près d’un millier de contributeurs
+-   Porté par une entreprise du même nom
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Les composants
+==============
+
+-   Protocole : ZeroMQ ou RAET
+-   Format : MsgPack + AES
+-   Authentification : clés RSA
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Disponibilité
+=============
+
+-   BSD
+-   Linux
+-   Windows
+-   Osx
+-   …
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Architecture
+============
+
+Trois niveaux de complexité:
+
+-   Appel local par le biais de salt-call
+-   Un master et des minions
+-   salt-syndic, l’architecture à plusieurs étages
+</script>
+</section>
+
+
+<section>
+  <h1>Un master des minions</h1>
+  <img src="images/salt/1floor.svg" style="border:none" />
+</section>
+
+<section>
+  <h1>Salt-syndic</h1>
+  <img src="images/salt/saltsyndic.svg" style="border:none" />
+</section>
+
+			<section data-markdown>
+    <script type="text/template">
+
+Commencer
+=========
+
+Installer un “master”
+
+```
+yum install salt-master
+```
+
+Installer des “minion”
+
+```
+yum install salt-minion
+```
+
+Référencer
+
+```
+salt-key -a minion.example.com
+```
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+On peut désormais jouer
+=======================
+
+Les **modules** fournissent un panel de commandes exécutables
+
+```bash
+salt '*' test.ping
+salt 'minion.example.com' pkg.upgrade
+```
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Modules
+=======
+
+-   De nombreuses librairies (mount, pkg, rabbitmq, …)
+-   Des modules “méta” ( ex: pkg )
+-   Développables facilement
+
+```python
+#/srv/salt/_modules/hello.py
+def message(filepath, message):
+    with open(filepath, w) as file_buffer:
+        file_buffer.write(message)
+```
+
+```
+salt 'minion.example.com' hello.message /tmp/test "Hello world"
+```
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Bien viser, le rôle des grains (1)
+==================================
+
+Les minions fournissent par défaut des variables d’environnement les
+‘grains’ :
+
+-   
+
+    Fournissent des informations :
+
+    :   -   Matériel
+        -   Logiciel
+
+-   Sont personnalisables
+-   Permettent de cibler les minion
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Bien viser, le rôle des grains (2)
+==================================
+
+```
+salt 'minion.example.com' grains.get os
+minion
+```
+</script>
+			</section>
+		</section>
+
+
                 <section>
                     <h2>Questions</h2>
                 </section>
@@ -1026,6 +1249,7 @@ virtual =&gt; physical
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.min.js"></script>
+
 
 		<script>
 
