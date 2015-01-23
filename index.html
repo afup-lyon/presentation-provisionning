@@ -125,13 +125,228 @@
 					<section>
 						<h2>Ansible</h2>
 						<p>
+							Radically simple IT<br/>automation platform
+						</p>
+					</section>
+
+					<section>
+						<h2>En résumé</h2>
+						<p>Python, GPL v3</p>
+					</section>
+
+					<section>
+						<h2>Exeécution de tâches<br/>sur des serveurs</h2>
+						<p>via ssh</p>
+					</section>
+
+					<section>
+						<h2>Commandes ad-hoc</h2>
+						<pre><code>ansible prod -m shell -a "yum upgrade -y"</code></pre>
+					</section>
+					<section>
+						<h2>Playbook</h2>
+						<p>YAML + des bouts de Jinja</p>
+					</section>
+					<section>
+						<h2>Orchestration</h2>
+						<p>
+<pre><code>---
+- hosts: jboss_servers
+  serial: 10%
+  tasks:
+  - nagios: action=disable_alerts service=host host={{ inventory_hostname }}
+    delegate_to: 127.0.0.1
+
+  - shell: yum upgrade -y
+
+  - shell: reboot
+
+  - wait_for: port=80 delay=10 host={{ inventory_hostname }}
+    delegate_to: 127.0.0.1
+
+  - nagios: action=enable_alerts service=host host={{ inventory_hostname }}
+    delegate_to: 127.0.0.1
+						</code></pre>
 						</p>
 					</section>
 					<section>
-						<h2>Ansible slide 2</h2>
-						<p></p>
+						<h2>Gestion de configuration</h2>
+						<pre><code>---
+- hosts: web_servers
+  roles:
+  - role: website
+    url: www.example.org
+    document_root: /srv/sites/www/
+
+  - role: website
+    url: webmail.example.org
+    document_root: /srv/sites/webmail/
+    modules:
+    - php
+
+  - role: website
+    url: calendar.example.org
+    redirect: webmail.example.org
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>Avec plus de details</h2>
+					</section>
+
+					<section>
+						<h2>Modules</h2>
+						<p>Idempotents</p>
+						<p>Couvrent de nombreux besoins</p>
+					</section>
+
+					<section>
+						<h2>Inventaire</h2>
+						<ul><li>Fichier plat</li>
+						<li>Dossier</li>
+						<li>Script</li></ul>
+					</section>
+
+					<section>
+						<pre><code>
+[web_servers]
+www[1,5].example.org ansible_ssh_user=root
+
+[redis_servers]
+redis[1,3].example.org ansible_ssh_user=centos ansible_sudo=yes
+redis-test.example.org ansible_ssh_user=fedora ansible_sudo=yes
+						</code></pre>
+					</section>
+					<section>
+						<h2>Variables</h2>
+						<p>Utilisables en Jinja</p>
+					</section>
+					<section>
+						<h2>Dans le playbook</h2>
+						<pre><code>---
+- hosts: webbuilder
+  vars:
+    builder_user: builder_middleman
+    error_mail:   misc@example.org
+  roles:
+  - role: builder
+    name: manageiq
+    git_url: "https://git.example.com/example/website.git"
+    git_version: master
+    remote_location: /var/www/html
+    remote_server: www.example.org
+    remote_user: root
+						</code></pre>
+					</section>
+					<section>
+						<h2>Fournies par Ansible</h2>
+						<pre><code>$ ansible all -m setup -c local -i '127.0.0.1,'
+127.0.0.1 | success >> {
+    "ansible_facts": {
+        "ansible_all_ipv4_addresses": [
+            "192.168.76.131"
+        ],
+        "ansible_all_ipv6_addresses": [
+            "fe80::ea2a:eaff:fe15:9d20"
+        ],
+        "ansible_architecture": "x86_64",
+        "ansible_bios_date": "03/28/2014",
+        "ansible_bios_version": "CJFT85RW (2.24 )",
+        "ansible_cmdline": {
+            "BOOT_IMAGE": "/vmlinuz-3.10.0-210.el7.x86_64",
+            "LANG": "fr_FR.UTF-8",
+						</code></pre>
+					</section>
+					<section>
+						<h2>Stocké dans des fichiers à part</h2>
+						<pre><code>$ ls *
+deploy.yml    hosts    requirements.yml
+
+group_vars:
+webservers.yml    redis_servers.yml
+
+host_vars:
+redis-test.yml
+
+roles:
+builder    website    redis
+						</code></pre>
+					</section>
+					<section>
+						<h2>Anatomie d'un rôle</h2>
+						<pre><code>$ ls roles/builder/*
+roles/builder/defaults:
+mail.yml
+
+roles/builder/files:
+builder.sh
+
+roles/builder/handlers:
+mail.yml
+
+roles/builder/meta:
+main.yml
+
+roles/builder/tasks:
+main.yml
+
+roles/builder/templates:
+config.ini
+						</code></pre>
+					</section>
+					<section>
+						<h2>Structure de contrôle</h2>
+						<ul><li>when</li>
+						<li>with_items</li>
+						<li>register</li></ul>
+					</section>
+					<section>
+						<h2>When</h2>
+						<pre><code>
+- name: install Epel
+  yum: pkg=epel-release state=installed
+  when: ansible_distribution == 'CentOS'
+						</code></pre>
+					</section>
+					<section>
+						<h2>With_items</h2>
+						<pre><code>
+- name: install base rpms
+  yum: pkg={{ item }} state=installed
+  with_items:
+  - screen
+  - htop
+  - iftop
+  - iotop
+  - strace
+  - vim-enhanced
+  - tcpdump
+  - chrony
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>Register</h2>
+						<pre><code>
+- user:
+   name=builder_middleman
+   generate_ssh_key=yes
+  register: result
+
+- authorized_key:
+      key="{{ result.ssh_public_key }}"
+      user=copy_user
+  delegate_to: www.example.org
+						</code></pre>
+					</section>
+					<section>
+						<h2>Plus d'informations</h2>
+						<p>http://www.ansible.com/</p>
+						<p>#ansible sur Freenode</p>
+						<p>ansible-users sur Google groups</p>
 					</section>
 				</section>
+
 
 				<section>
 					<section data-background="images/chef/logo.png" data-background-size="40%" data-background-transition="zoom">
