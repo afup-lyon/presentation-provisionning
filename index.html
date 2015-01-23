@@ -67,21 +67,463 @@
 						</p>
 					</section>
 					<section>
-						<h2>Ansible slide 2<h2>
+						<h2>Ansible slide 2</h2>
 						<p></p>
 					</section>
 				</section>
 
 				<section>
-					<section>
-						<h2>Chef</h2>
+					<section data-background="images/chef/logo.png" data-background-size="40%" data-background-transition="zoom">
+						<h2>OpsCode Chef</h2>
 						<p>
 						</p>
 					</section>
+
 					<section>
-						<h2>Chef slide 2<h2>
-						<p></p>
+						<h2>Chef, c'est quoi donc ?</h2>
+						<blockquote cite="https://docs.chef.io/">
+                            “Chef is a systems and cloud <strong>infrastructure automation framework</strong> that makes it easy to deploy servers and applications to any physical, virtual, or cloud location, no matter the size of the infrastructure.”
+						</blockquote>
+
+                        <p><small><a href="http://docs.chef.io/">http://docs.chef.io</a></small></p>
 					</section>
+
+                    <section>
+                        <h2>Un framework</h2>
+
+                        <h3>Un cadre</h3>
+                        <h3>Des conventions</h3>
+                        <h3>Des outils</h3>
+                    </section>
+
+                    <section>
+                        <h2>Un peu de vocabulaire</h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Cookbooks</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Recettes (recipes)</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Ressources</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Attributs (attributes)</td>
+                                    <td></td>
+                                </tr>
+                                <tr></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h2>Attributs</h2>
+
+                        <blockquote cite="https://docs.chef.io/">
+                            “An attribute is a specific detail about a node”
+                        </blockquote>
+
+                        <p><small><a href="http://docs.chef.io/cookbooks.html">http://docs.chef.io/attributes.html</a></small></p>
+
+                        <p>En gros, c'est une variable configurable et/ou dépendante de la plateforme.</p>
+                    </section>
+
+                    <section>
+                        <h2>Attributs</h2>
+
+                        <h3>Défini par</h3>
+                        <pre class="ruby"><code data-trim># my_app/attributes/default.rb
+
+default['my_app']['environment'] = 'prod'</code></pre>
+
+                        <h3>Accédé par</h3>
+
+                        <pre class="ruby"><code data-trim># my_app/recipes/default.rb
+
+puts node['my_app']['environment']</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Ressource</h2>
+
+                        <blockquote>
+                            “A resource is a statement of configuration policy. It describes the desired state of an element of your infrastructure, along with the steps needed to bring that item to the desired state.”
+                        </blockquote>
+
+                        <p><small><a href="http://docs.chef.io/resources.html">http://docs.chef.io/resources.html</a></small></p>
+                    </section>
+
+                    <section>
+                        <h2>Ressource</h2>
+
+                        <pre class="ruby"><code data-trim># my_app/recipes/packages.rb
+
+package 'hhvm' do
+    action :install
+end</code></pre>
+
+                        <blockquote cite="https://docs.chef.io/">
+                            “Chef, installe le paquet <code>hhvm</code> s'il n'est pas déjà installé.
+                            <br/>
+                            Merci !”
+                        </blockquote>
+                    </section>
+
+                    <section>
+                        <h2>Ressources</h2>
+
+                        <h3>50+ ressources natives</h3>
+                        <h4>file, directory, execute, package, ruby_block, service, user, group, ...</h4>
+                        <p><small><a href="http://docs.chef.io/resources.html#platform-resources">http://docs.chef.io/resources.html#platform-resources</a></small></p>
+                    </section>
+
+                    <section>
+                        <h2>Recette (recipe)</h2>
+
+                        <blockquote>
+                            “A recipe is the most fundamental configuration element within the organization.“
+                        </blockquote>
+
+                        <p><small><a href="http://docs.chef.io/recipes.html">http://docs.chef.io/recipes.html</a></small></p>
+                    </section>
+
+                    <section>
+                        <h2>Recette (recipe)</h2>
+                        <p>Une recette contient une ou plusieurs ressources</p>
+
+                        <pre class="ruby"><code data-trim># recipes/packages.rb
+
+yum_repository 'epel' do
+    mirrorlist 'http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&arch=$basearch'
+    gpgkey 'http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6'
+    action :create
+
+    notifies :run, 'execute[yum-clean-all]', :immediately
+end
+
+execute 'yum-clean-all' do
+    command 'yum clean all'
+    action :nothing
+end
+
+package 'php'</code></pre>
+
+                        <blockquote cite="https://docs.chef.io/">
+                            “Chef, pour installer le paquet <code>php</code>, il faut commencer par ajouter le dépôt EPEL. Ensuite tu pourras installer <code>php</code>”
+                        </blockquote>
+                    </section>
+
+                    <section>
+                        <h2>Cookbook</h2>
+
+                        <blockquote cite="https://docs.chef.io/">
+                            “A cookbook is the fundamental unit of configuration and policy <strong>distribution</strong>. Each cookbook defines a scenario, such as everything needed to install and configure MySQL”
+                        </blockquote>
+
+                        <p><small><a href="http://docs.chef.io/cookbooks.html">http://docs.chef.io/cookbooks.html</a></small></p>
+                    </section>
+
+                    <section>
+                        <h2>Cookbook</h2>
+
+                        <pre><code data-trim>.
+├── attributes/
+│   └── default.rb
+├── files/
+│   └── default/
+├── libraries/
+├── metadata.rb
+├── providers/
+├── recipes/
+│   ├── default.rb
+│   └── packages.rb
+├── resources/
+└── templates/
+    └── default/</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Et c'est pas fini !</h2>
+
+                        <ul>
+                            <li>Databags</li>
+                            <li>Providers</li>
+                            <li>Portabilité (<code>value_for_platform</code>, ohai)</li>
+                            <li>Notifications (<code>notifies</code>) et Abonnements (<code>subscribes</code>)</li>
+                            <li>Gardes (<code>only_if</code>, <code>not_if</code>)</li>
+                            <li>Surcharges d'attributs</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Configuration</h2>
+                        <p>Un peu de JSON</p>
+
+                        <pre class="json"><code data-trim>{
+    "run_list": [
+        "recipe[etc_environment]",
+        "recipe[my_app::packages]",
+        "recipe[my_app]"
+    ],
+    "etc_environment": {
+        "SYMFONY_ENV": "prod",
+        "SYMFONY_DEBUG": 0
+    }
+}</code></pre>
+
+                        <p>La liste des recettes (<code>run_list</code>) à exécuter ainsi que les attributs</p>
+                    </section>
+
+                    <section>
+                        <h2>chef-solo</h2>
+                        <p>Pour le mode standalone</p>
+
+                        <pre class="ruby"><code data-trim># /opt/chef/solo.rb
+
+cookbook_path ['/opt/chef/cookbooks']
+json_attribs '/opt/chef/solo.json'</code></pre>
+
+                        <pre><code data-trim>$ chef-solo -c /opt/chef/solo.rb</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Exécution (run)</h2>
+
+                        <pre class="stretch"><code data-trim>Starting Chef Client, version 11.12.8
+resolving cookbooks for run list: ["ohai", "proxmox-ohai", "resolver", "timezone", "consul", ...]
+Synchronizing Cookbooks:
+- ohai
+- proxmox-ohai
+- resolver
+- timezone
+- consul
+...
+Compiling Cookbooks...
+Converging 26 resources
+Recipe resolver::default
+  * template[/etc/resolv.conf] action create (up to date)
+Recipe timezone::default
+  * package[tzdata] action install (up to date)
+  * template[/etc/timezone] action create (up to date)
+  * bash[dpkg-reconfigure tzdata] action nothing (skipped due to action :nothing)
+Recipe consul::default
+...
+Chef Client finished, 2/31 resources updated in 3.391670365 seconds</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Exécution (run)</h2>
+
+                        <h3>Plusieurs étapes</h3>
+                        <ul>
+                            <li>Calcul de la configuration du noeud</li>
+                            <li>Résolution de la <code>run_list</code></li>
+                            <li><strong>Compilation des ressources</strong></li>
+                            <li><strong>Convergence</strong></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Compilation / Convergence</h2>
+
+                        <h3>Recette</h3>
+                        <pre class="ruby"><code data-trim># my_app/recipes/default.rb
+
+# Une fonction Ruby
+puts 'Yo'
+
+# Une ressource Chef
+log 'Man'
+
+puts 'Hello'
+log 'World'</code></pre>
+
+                        <div class="fragment">
+                            <h3>Résultat</h3>
+
+                            <pre><code data-trim>Yo
+Hello
+[2015-01-22T20:51:04+00:00] INFO: Man
+[2015-01-22T20:51:04+00:00] INFO:World
+</code></pre>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Chef Server &amp; chef-client</h2>
+                        <p>Pour le mode client/serveur</p>
+
+                        <pre class="ruby"><code data-trim>chef_server_url  "https://chef.myorg.com"
+validation_client_name "chef-validator"
+node_name "my_app_web"
+environment "production"</code></pre>
+
+                        <pre><code data-trim>$ chef-client</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Un peu de vocabulaire, encore</h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Noeuds (nodes)</td>
+                                    <td>Le système cible décrit par des rôles, des cookbooks/recettes et des attributs</td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Rôles</td>
+                                    <td>Une collection de cookbooks/recettes et des attributs</td>
+                                </tr>
+                                <tr></tr>
+                                <tr>
+                                    <td>Environnements</td>
+                                    <td>Un ensemble de contraintes sur les cookbooks et des attributs</td>
+                                </tr>
+                                <tr></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h2>Chef Server</h2>
+
+                        <ul>
+                            <li>Héberge les cookbooks</li>
+                            <li>Héberge les configurations (noeuds, rôles, environnements et databags)</li>
+                            <li>Authentifie les tiers</li>
+                            <li>Maintient un index des données</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Orchestration</h2>
+
+                        <p>Grâce à l'index <code>:node</code> et à la méthode <code>search</code>.</p>
+
+                        <pre class="ruby"><code data-trim>search(:node, "role:db",
+    :filter_result => { 'ip' => [ 'ipaddress' ]}).each do |result|
+    puts result['ip']
+end
+
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h2>L'écosystème</h2>
+
+                        <ul>
+                            <li>Des outils</li>
+                            <li>Des cookbooks libres</li>
+                            <li>Des patterns</li>
+                            <li>Une communauté</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Les outils</h2>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>knife</td>
+                                <td>Commande pour gérer chef server</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>berks</td>
+                                <td>Gestionnaire de dépendances</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>foodcritic</td>
+                                <td>Linter</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>chefspec</td>
+                                <td>Tests unitaires</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>kitchen CI</td>
+                                <td>Tests d'intégration multi-plateforme</td>
+                            </tr>
+                            <tr></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section>
+                        <h2>Place to be #1</h2>
+
+                        <h3>Documentation</h3>
+                        <p>Dépôt central des cookbooks communautaires</p>
+
+                        <p><small><a href="http://docs.chef.io">http://docs.chef.io</a></small></p>
+                    </section>
+
+                    <section>
+                        <h2>Documentation</h2>
+
+                        <h3>Le lien magique</h3>
+                        <p>https://docs.chef.io/resource_&lt;resource-name&gt;.html</p>
+                        <br/>
+                        <h3>La liste des ressources</h3>
+                        <p><a href="https://docs.chef.io/resources.html#platform-resources">https://docs.chef.io/resources.html#platform-resources</a></p>
+                    </section>
+
+                    <section>
+                        <h2>Place to be #2</h2>
+
+                        <h3>Supermarket</h3>
+                        <p>Dépôt central des cookbooks communautaires</p>
+
+                        <p><small><a href="https://supermarket.chef.io">https://supermarket.chef.io</a></small></p>
+                    </section>
+
+                    <section>
+                        <h2>Place to be #3</h2>
+
+                        <h3>Github</h3>
+                        <p>Code source des cookbooks communautaires</p>
+
+                        <p>
+                            <small><a href="https://github.com/opscode-cookbooks">https://github.com/opscode-cookbooks</a></small><br/>
+                            <small><a href="https://github.com/chef-cookbooks">https://github.com/chef-cookbooks</a></small>
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Les points forts</h2>
+
+                        <ul>
+                            <li>Du ruby partout</li>
+                            <li>Une documentation assez énorme</li>
+                            <li>Beaucoup de ressources (cookbooks, articles, ...)</li>
+                            <li>Un DSL puissant et extensible</li>
+                            <li>Un très bon écosystème</li>
+                            <li>Une communauté très active</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Les points faibles</h2>
+
+                        <ul>
+                            <li>Les débuts peuvent être compliqués</li>
+                            <li>La documentation est parfois dure à exploiter</li>
+                            <li>Chef server un peu compliqué à installer</li>
+                            <li>Manque de qualité de certains cookbooks communautaires</li>
+                        </ul>
+                    </section>
+
 				</section>
 
 				<section>
@@ -135,7 +577,7 @@
     file { "/etc/httpd/conf.d/${variable1}":
         content =&gt; $variable2,
     }
-}</pre></code>
+}</code></pre>
                         <div class="fragment">
                             <h3>Déclaration d’une classe</h3>
                             <pre><code>class monmodule::maclasse (
@@ -152,6 +594,7 @@
         variable2 =&gt; '',
     }
 }</code></pre>
+                        </div>
                     </section>
                     <section>
                         <h2>Comment charger une classe</h2>
@@ -186,7 +629,7 @@
 ├── puppet.conf
 │   &lt;!-- Mes recommandations --&gt;
 ├── hieradata
-└── sensitive</pre></code>
+└── sensitive</code></pre>
                         <p>/etc/puppet/fileserver.conf
                         <pre><code>[sensitive]
 path /etc/puppet/sensitive/%d/%h
