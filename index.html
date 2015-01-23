@@ -197,7 +197,7 @@ end</code></pre>
 
                     <section>
                         <h2>Recette (recipe)</h2>
-                        <p>Une recette contient une ou plusieurs resources</p>
+                        <p>Une recette contient une ou plusieurs ressources</p>
 
                         <pre class="ruby"><code data-trim># recipes/packages.rb
 
@@ -248,6 +248,19 @@ package 'php'</code></pre>
 ├── resources/
 └── templates/
     └── default/</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Et c'est pas fini !</h2>
+
+                        <ul>
+                            <li>Databags</li>
+                            <li>Providers</li>
+                            <li>Portabilité (<code>value_for_platform</code>, ohai)</li>
+                            <li>Notifications (<code>notifies</code>) et Abonnements (<code>subscribes</code>)</li>
+                            <li>Gardes (<code>only_if</code>, <code>not_if</code>)</li>
+                            <li>Surcharges d'attributs</li>
+                        </ul>
                     </section>
 
                     <section>
@@ -401,19 +414,6 @@ environment "production"</code></pre>
 end
 
                         </code></pre>
-                    </section>
-
-                    <section>
-                        <h2>Et c'est pas fini !</h2>
-
-                        <ul>
-                            <li>Databags</li>
-                            <li>Providers</li>
-                            <li>Portabilité (<code>value_for_platform</code>, ohai)</li>
-                            <li>Notifications (<code>notifies</code>) et Abonnements (<code>subscribes</code>)</li>
-                            <li>Gardes (<code>only_if</code>, <code>not_if</code>)</li>
-                            <li>Surcharges d'attributs</li>
-                        </ul>
                     </section>
 
                     <section>
