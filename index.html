@@ -1251,7 +1251,185 @@ salt 'minion.example.com' grains.get os
 minion
 ```
 </script>
-			</section>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+Configuration : Les états
+=========================
+
+-   Les fichiers d’état sont des templates jinja ayant pour destination
+    le format yaml
+-   Ils sont stockés par défaut dans /srv/salt
+-   Un état correspond à une exigence : “Installer le paquet nginx”
+-   Il peut dépendre d’autre état : “Nginx doit être lancé” requiert
+    “Installation du paquet Nginx”
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+Exemple d’état avec utilisation de grain
+========================================
+
+```
+# /srv/salt/nginx.sls
+{% if grains['node_type'] == 'django' %}
+nginx:
+    pkg.installed:
+        - nginx
+    service.runing:
+        - name: nginx
+        - require:
+          - pkg: nginx
+{% endif %}
+```
+
+```
+salt 'minion.example.com' state.sls nginx
+```
+
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+top.sls + highstate : le point d’entrée
+=======================================
+
+**top.sls**
+
+> le fichier d’entrée qui associe les états aux machines
+
+```
+# /srv/salt/top.sls
+base:
+    'minion.example.com':
+        - django_project
+        - nginx
+```
+
+Ce qui va nous permettre de lancer
+
+```
+salt '*' state.highstate
+```
+
+
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+
+
+Gestion des dépendances : require
+=================================
+
+**require** permet de requérir :
+
+* Un état
+* Un fichier d’état
+
+```
+include:
+    - nginx
+
+collect_static:
+    cmd.run:
+        - name: /root/collect_static.sh
+        - require:
+          - sls: nginx
+```
+
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+
+Gestion des dépendances : watch
+===============================
+
+Observe les modifications apportées par un autre état
+
+```
+gunicorn_conf_file:
+    file.managed:
+        - source: salt://django/source/etc/gunicorn.d/project.conf
+        - name: /etc/gunicorn.d/project.conf
+
+gunicorn:
+  service.running:
+    - enable: True
+    - reload: True
+    - watch:
+      - file: gunicorn_conf_file
+```
+
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+
+Le fileserver
+=============
+
+* Un serveur de fichier en ZeroMQ intégré au service salt-master
+* Permet de fournir des fichiers au gestionnaire d’états
+* Les fichiers sont des templates
+* Par défaut, les fichiers sont placés dans la même arborescence que les états
+
+```
+gunicorn_conf_file:
+    file.managed:
+        - source: salt://django/source/etc/gunicorn.d/project.conf
+        - name: /etc/gunicorn.d/project.conf
+        - template: jinja
+```
+
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+
+Pillar : des variables de configuration
+=======================================
+
+Composant permettant de distribuer des variables de configuration :
+
+* Stockées sur le master
+* Associées aux minions par le biais des grains
+* Cloisonnées
+* Utilisables dans les states
+
+</script>
+</section>
+			<section data-markdown>
+    <script type="text/template">
+
+
+Pillar : exemple
+================
+
+```
+#/srv/pillar/top.sls
+base:
+    'minion.example.com':
+        - db_pass
+
+#/srv/pillar/db_pass.sls
+sql_user: django
+sql_password: ma donnéessuper secret
+```
+
+```
+# /srv/salt/django_project/sources/etc/django/settings.py
+```
+
+</script>
+</section>
                        <section>
                            <h2>Questions</h2>
                        </section>
